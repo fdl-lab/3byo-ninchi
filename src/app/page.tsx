@@ -1,65 +1,147 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { motion } from "framer-motion";
+import NeonBackground from "@/components/ui/NeonBackground";
+import ScanLine from "@/components/ui/ScanLine";
+import NeonButton from "@/components/ui/NeonButton";
+import GlitchText from "@/components/ui/GlitchText";
+import CornerBrackets from "@/components/ui/CornerBrackets";
+import GlassPanel from "@/components/ui/GlassPanel";
+import Equalizer from "@/components/hud/Equalizer";
+
+const HUD_STATS = [
+  { label: "SYSTEM", value: "ONLINE" },
+  { label: "MODE", value: "EMOTIONAL SCAN" },
+  { label: "VERSION", value: "v3.0.1" },
+];
+
+export default function HomePage() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div className="relative min-h-screen overflow-hidden">
+      <NeonBackground />
+      <ScanLine />
+
+      <div className="relative z-10 flex min-h-screen flex-col">
+        <header className="flex items-center justify-between px-4 py-4 sm:px-8">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="hud-font text-[10px] tracking-[0.3em] text-purple-400/60"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+            EYE MEMORY ARCHIVE
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="flex items-center gap-2"
+          >
+            <motion.span
+              className="h-1.5 w-1.5 rounded-full bg-green-400"
+              animate={{ opacity: [1, 0.3, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            <span className="hud-font text-[10px] text-green-400/80 tracking-wider">
+              SYSTEM READY
+            </span>
+          </motion.div>
+        </header>
+
+        <main className="flex flex-1 flex-col items-center justify-center px-4 pb-16 pt-8">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8 }}
+            className="relative mb-8"
           >
-            Documentation
-          </a>
-        </div>
-      </main>
+            <div className="relative px-8 py-6">
+              <CornerBrackets size="lg" />
+              <GlitchText as="h1" className="text-center">
+                <span className="block text-5xl sm:text-7xl font-black tracking-tight neon-text">
+                  3秒認知
+                </span>
+              </GlitchText>
+              <motion.p
+                className="mt-2 text-center hud-font text-xs sm:text-sm tracking-[0.4em] text-purple-400/70"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+              >
+                3BYOU NINCHI
+              </motion.p>
+            </div>
+          </motion.div>
+
+          <motion.p
+            className="max-w-md text-center text-sm sm:text-base text-purple-200/70 leading-relaxed mb-2"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            推しの視線を、未来の装置で記録する。
+          </motion.p>
+          <motion.p
+            className="max-w-sm text-center text-xs text-purple-400/50 mb-10"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+          >
+            「目が合った気がした」——その感情を、永遠にアーカイブ。
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+          >
+            <NeonButton href="/upload">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
+              Upload Video
+            </NeonButton>
+          </motion.div>
+
+          <motion.div
+            className="mt-16 grid grid-cols-3 gap-3 w-full max-w-lg"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.9 }}
+          >
+            {HUD_STATS.map((stat, i) => (
+              <GlassPanel key={stat.label} className="p-3 text-center">
+                <p className="hud-font text-[8px] text-purple-400/50 tracking-widest mb-1">
+                  {stat.label}
+                </p>
+                <motion.p
+                  className="hud-font text-[10px] sm:text-xs text-purple-200"
+                  animate={{ opacity: [0.7, 1, 0.7] }}
+                  transition={{ duration: 2, repeat: Infinity, delay: i * 0.3 }}
+                >
+                  {stat.value}
+                </motion.p>
+              </GlassPanel>
+            ))}
+          </motion.div>
+
+          <motion.div
+            className="mt-8 flex items-center gap-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.1 }}
+          >
+            <Equalizer bars={16} />
+            <span className="hud-font text-[9px] text-purple-400/40 tracking-[0.3em]">
+              EMOTIONAL ANALYZER STANDBY
+            </span>
+          </motion.div>
+        </main>
+
+        <footer className="px-4 py-4 text-center">
+          <p className="hud-font text-[8px] text-purple-500/30 tracking-[0.3em]">
+            © 2026 EYE MEMORY ARCHIVE — FOR OSHIKATSU USE ONLY
+          </p>
+        </footer>
+      </div>
     </div>
   );
 }

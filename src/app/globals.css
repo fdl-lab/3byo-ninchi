@@ -19,6 +19,48 @@
   --font-sans: var(--font-noto-sans-jp);
   --font-mono: var(--font-orbitron);
   --font-display: var(--font-orbitron);
+  --font-pixel: var(--font-dot-gothic);
+}
+
+.pixel-logo {
+  font-family: var(--font-dot-gothic), "DotGothic16", monospace;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+  color: #faf5ff;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: unset;
+  text-shadow:
+    2px 0 0 #9333ea,
+    4px 0 0 #6b21a8,
+    0 2px 0 #9333ea,
+    0 4px 0 #581c87,
+    2px 2px 0 #ec4899,
+    4px 4px 0 #3b0764;
+}
+
+.pixel-logo-hero {
+  font-size: clamp(2.5rem, 10vw, 4.5rem);
+}
+
+.pixel-logo-md {
+  font-size: clamp(1.5rem, 5vw, 2rem);
+}
+
+.pixel-logo-sm {
+  font-size: 1.125rem;
+}
+
+.pixel-subtitle {
+  font-family: var(--font-press-start), "Press Start 2P", monospace;
+  font-size: clamp(0.45rem, 2vw, 0.625rem);
+  letter-spacing: 0.2em;
+  line-height: 1.8;
+  color: #d8b4fe;
+  text-shadow:
+    1px 0 0 #7e22ce,
+    0 1px 0 #7e22ce,
+    2px 2px 0 #3b0764;
 }
 
 * {

@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import NeonBackground from "@/components/ui/NeonBackground";
 import ScanLine from "@/components/ui/ScanLine";
 import NeonButton from "@/components/ui/NeonButton";
-import GlitchText from "@/components/ui/GlitchText";
+import PixelLogo from "@/components/ui/PixelLogo";
 import CornerBrackets from "@/components/ui/CornerBrackets";
 import GlassPanel from "@/components/ui/GlassPanel";
 import Equalizer from "@/components/hud/Equalizer";
@@ -55,19 +55,7 @@ export default function HomePage() {
           >
             <div className="relative px-8 py-6">
               <CornerBrackets size="lg" />
-              <GlitchText as="h1" className="text-center">
-                <span className="block text-5xl sm:text-7xl font-black tracking-tight neon-text">
-                  3秒認知
-                </span>
-              </GlitchText>
-              <motion.p
-                className="mt-2 text-center hud-font text-xs sm:text-sm tracking-[0.4em] text-purple-400/70"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
-              >
-                3BYOU NINCHI
-              </motion.p>
+              <PixelLogo size="hero" />
             </div>
           </motion.div>
 

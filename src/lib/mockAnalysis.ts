@@ -1,3 +1,5 @@
+import { VideoFrame } from "./videoFrames";
+
 export type AnalysisLevel = "LOW" | "MID" | "HIGH";
 
 export interface AnalysisResult {
@@ -14,9 +16,15 @@ export interface AnalysisResult {
   timestamp: string;
   archiveId: string;
   memoryHearts: number;
-  history: { date: string; rate: number }[];
   tags: string[];
   quote: string;
+  frames: VideoFrame[];
+  highlightFrameIndex: number;
+  heroFrameDataUrl: string;
+  momentSec: number;
+  isPortrait: boolean;
+  videoWidth: number;
+  videoHeight: number;
 }
 
 const EVENTS = [
@@ -64,7 +72,18 @@ function pickRandomTags(count: number): string[] {
   return shuffled.slice(0, count);
 }
 
-export function generateMockAnalysis(): AnalysisResult {
+interface GenerateOptions {
+  momentSec?: number;
+  timestamp?: string;
+  frames?: VideoFrame[];
+  highlightFrameIndex?: number;
+  heroFrameDataUrl?: string;
+  isPortrait?: boolean;
+  videoWidth?: number;
+  videoHeight?: number;
+}
+
+export function generateMockAnalysis(options: GenerateOptions = {}): AnalysisResult {
   const eyeContactRate = randomBetween(78, 98, 1);
   const durationSec = randomBetween(1.2, 4.5, 2);
   const gazeZonePercent = Math.round(randomBetween(65, 95, 0));
@@ -75,15 +94,6 @@ export function generateMockAnalysis(): AnalysisResult {
 
   const now = new Date();
   const date = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, "0")}.${String(now.getDate()).padStart(2, "0")}`;
-
-  const history = Array.from({ length: 5 }, (_, i) => {
-    const d = new Date(now);
-    d.setDate(d.getDate() - (i + 1) * 12);
-    return {
-      date: `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`,
-      rate: randomBetween(60, 95, 1),
-    };
-  });
 
   return {
     eyeContactRate,
@@ -96,11 +106,17 @@ export function generateMockAnalysis(): AnalysisResult {
     event: pickRandom(EVENTS),
     place: pickRandom(PLACES),
     date,
-    timestamp: `00:0${Math.floor(Math.random() * 5)}.${String(Math.floor(Math.random() * 99)).padStart(2, "0")}`,
+    timestamp: options.timestamp ?? "00:02.17",
     archiveId: `EMA-${now.getFullYear()}-${Math.random().toString(36).slice(2, 10).toUpperCase()}`,
     memoryHearts: Math.floor(randomBetween(3, 5, 0)),
-    history,
     tags: pickRandomTags(3),
     quote: pickRandom(QUOTES),
+    frames: options.frames ?? [],
+    highlightFrameIndex: options.highlightFrameIndex ?? 2,
+    heroFrameDataUrl: options.heroFrameDataUrl ?? "",
+    momentSec: options.momentSec ?? 2.17,
+    isPortrait: options.isPortrait ?? false,
+    videoWidth: options.videoWidth ?? 1920,
+    videoHeight: options.videoHeight ?? 1080,
   };
 }

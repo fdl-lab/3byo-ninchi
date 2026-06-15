@@ -13,7 +13,12 @@ export function getVideoUrl(): string | null {
 
 export function saveAnalysisResult(result: unknown): void {
   if (typeof window === "undefined") return;
-  sessionStorage.setItem(RESULT_KEY, JSON.stringify(result));
+  try {
+    sessionStorage.setItem(RESULT_KEY, JSON.stringify(result));
+  } catch {
+    const slim = { ...(result as Record<string, unknown>), heroFrameDataUrl: "", frames: [] };
+    sessionStorage.setItem(RESULT_KEY, JSON.stringify(slim));
+  }
 }
 
 export function getAnalysisResult<T>(): T | null {

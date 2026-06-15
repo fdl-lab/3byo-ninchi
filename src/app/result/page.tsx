@@ -13,8 +13,10 @@ import Equalizer from "@/components/hud/Equalizer";
 import DataCounter from "@/components/hud/DataCounter";
 import ResultCard from "@/components/result/ResultCard";
 import Filmstrip from "@/components/result/Filmstrip";
-import TrendGraph from "@/components/result/TrendGraph";
+import ShareActions from "@/components/result/ShareActions";
 import GlitchText from "@/components/ui/GlitchText";
+import PixelLogo from "@/components/ui/PixelLogo";
+import { getVideoContainerClass } from "@/components/ui/VideoDisplay";
 import { AnalysisResult } from "@/lib/mockAnalysis";
 import { getAnalysisResult, getVideoUrl } from "@/lib/videoStore";
 
@@ -54,6 +56,9 @@ export default function ResultPage() {
     LOW: "text-indigo-400",
   };
 
+  const isPortrait = result.isPortrait;
+  const videoContainerClass = getVideoContainerClass(isPortrait, "result");
+
   return (
     <div className="relative min-h-screen overflow-hidden pb-12">
       <NeonBackground />
@@ -88,22 +93,33 @@ export default function ResultPage() {
           </motion.div>
         </motion.header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6">
+        <div
+          className={`grid grid-cols-1 gap-4 sm:gap-6 ${
+            isPortrait ? "lg:grid-cols-2" : "lg:grid-cols-5"
+          }`}
+        >
           <motion.div
-            className="lg:col-span-3"
+            className={isPortrait ? "lg:col-span-1" : "lg:col-span-3"}
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <GlassPanel className="relative aspect-[4/3] sm:aspect-video overflow-hidden">
+            <GlassPanel className={`relative overflow-hidden ${videoContainerClass}`}>
               {videoUrl ? (
                 <video
                   src={videoUrl}
-                  className="w-full h-full object-cover"
+                  className={`w-full h-full ${isPortrait ? "object-contain" : "object-cover"}`}
                   autoPlay
                   muted
                   loop
                   playsInline
+                />
+              ) : result.heroFrameDataUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={result.heroFrameDataUrl}
+                  alt="視線一致フレーム"
+                  className="w-full h-full object-contain"
                 />
               ) : (
                 <div className="w-full h-full bg-gradient-to-br from-purple-900/40 via-indigo-900/30 to-pink-900/20" />
@@ -115,7 +131,7 @@ export default function ResultPage() {
                 subtitle="その瞬間、確かに届いた。"
               />
 
-              <div className="absolute bottom-3 left-3 z-10 space-y-0.5">
+              <div className="absolute bottom-3 left-3 z-10 space-y-0.5 bg-black/40 px-2 py-1 rounded-sm backdrop-blur-sm">
                 <p className="hud-font text-[8px] text-purple-400/50">DATE</p>
                 <p className="text-[10px] text-purple-200">{result.date}</p>
                 <p className="hud-font text-[8px] text-purple-400/50 mt-1">EVENT</p>
@@ -123,10 +139,16 @@ export default function ResultPage() {
                 <p className="hud-font text-[8px] text-purple-400/50 mt-1">PLACE</p>
                 <p className="text-[10px] text-purple-200">{result.place}</p>
               </div>
+
+              {isPortrait && (
+                <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10 hud-font text-[8px] text-purple-300/60 bg-black/40 px-2 py-0.5 tracking-widest">
+                  VERTICAL MODE
+                </div>
+              )}
             </GlassPanel>
           </motion.div>
 
-          <div className="lg:col-span-2 space-y-4">
+          <div className={`space-y-4 ${isPortrait ? "lg:col-span-1" : "lg:col-span-2"}`}>
             <ResultCard label="Eye Contact Probability" delay={0.3}>
               <div className="flex items-end gap-2">
                 <span className="hud-font text-5xl sm:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-300 via-pink-300 to-purple-300 neon-text">
@@ -197,7 +219,11 @@ export default function ResultPage() {
             <p className="hud-font text-[9px] text-purple-400/60 tracking-[0.2em] mb-3">
               EYE CONTACT MOMENT
             </p>
-            <Filmstrip highlightIndex={2} timestamp={result.timestamp} />
+            <Filmstrip
+              frames={result.frames}
+              highlightIndex={result.highlightFrameIndex}
+              isPortrait={isPortrait}
+            />
           </GlassPanel>
 
           <GlassPanel className="p-4 flex flex-col justify-center">
@@ -215,32 +241,11 @@ export default function ResultPage() {
         </motion.div>
 
         <motion.div
-          className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+          className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1 }}
         >
-          <GlassPanel className="p-4">
-            <p className="hud-font text-[9px] text-purple-400/60 tracking-[0.2em] mb-3">
-              HISTORY ARCHIVE
-            </p>
-            <div className="space-y-2">
-              {result.history.map((h) => (
-                <div key={h.date} className="flex justify-between text-[11px]">
-                  <span className="text-purple-400/50">{h.date}</span>
-                  <span className="hud-font text-purple-300">{h.rate}%</span>
-                </div>
-              ))}
-            </div>
-          </GlassPanel>
-
-          <GlassPanel className="p-4">
-            <p className="hud-font text-[9px] text-purple-400/60 tracking-[0.2em] mb-3">
-              EYE CONTACT SCORE
-            </p>
-            <TrendGraph data={result.history} />
-          </GlassPanel>
-
           <GlassPanel className="p-4">
             <p className="hud-font text-[9px] text-purple-400/60 tracking-[0.2em] mb-3">
               MEMORY IMPACT
@@ -282,6 +287,10 @@ export default function ResultPage() {
               ))}
             </div>
           </GlassPanel>
+
+          <GlassPanel className="p-4 sm:col-span-2 lg:col-span-1">
+            <ShareActions result={result} />
+          </GlassPanel>
         </motion.div>
 
         <motion.footer
@@ -291,25 +300,15 @@ export default function ResultPage() {
           transition={{ delay: 1.2 }}
         >
           <div>
-            <p className="text-xl font-black neon-text">3秒認知</p>
-            <p className="hud-font text-[8px] text-purple-400/40 tracking-[0.3em]">
-              3BYOU NINCHI — EYE MEMORY ARCHIVE
+            <PixelLogo size="sm" showSubtitle align="left" glitch={false} />
+            <p className="hud-font text-[8px] text-purple-400/40 tracking-[0.3em] mt-2">
+              EYE MEMORY ARCHIVE
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
-            {["X", "IG", "TT"].map((s) => (
-              <button
-                key={s}
-                className="hud-font text-[10px] w-10 h-10 border border-purple-500/30 flex items-center justify-center text-purple-400/60 hover:border-purple-400/50 hover:text-purple-300 transition-colors"
-              >
-                {s}
-              </button>
-            ))}
-            <NeonButton href="/upload" variant="secondary">
-              New Scan
-            </NeonButton>
-          </div>
+          <NeonButton href="/upload" variant="secondary">
+            New Scan
+          </NeonButton>
 
           <div className="text-right">
             <p className="hud-font text-[8px] text-purple-500/30 tracking-widest">

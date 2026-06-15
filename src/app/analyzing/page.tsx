@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import NeonBackground from "@/components/ui/NeonBackground";
@@ -11,14 +11,16 @@ import Equalizer from "@/components/hud/Equalizer";
 import Waveform from "@/components/hud/Waveform";
 import { FluctuatingNumber } from "@/components/hud/DataCounter";
 import GlitchText from "@/components/ui/GlitchText";
+import { getVideoContainerClass } from "@/components/ui/VideoDisplay";
 import { generateMockAnalysis } from "@/lib/mockAnalysis";
 import { getVideoUrl, saveAnalysisResult } from "@/lib/videoStore";
+import { extractEyeContactFrames, formatTimestamp } from "@/lib/videoFrames";
 
 const PHASES = [
   "INITIALIZING NEURAL SCAN...",
   "SCANNING EYE CONTACT",
   "FACE TRACKING",
-  "Gaze Vector Analysis",
+  "EXTRACTING KEY FRAMES",
   "Emotional Resonance Check",
   "TARGET ACQUISITION",
 ];
@@ -29,6 +31,9 @@ export default function AnalyzingPage() {
   const [progress, setProgress] = useState(0);
   const [locked, setLocked] = useState(false);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [isPortrait, setIsPortrait] = useState(false);
+  const [statusText, setStatusText] = useState("");
+  const startedRef = useRef(false);
 
   useEffect(() => {
     const url = getVideoUrl();
@@ -40,23 +45,50 @@ export default function AnalyzingPage() {
   }, [router]);
 
   useEffect(() => {
+    if (!videoUrl || startedRef.current) return;
+    startedRef.current = true;
+
     const phaseInterval = setInterval(() => {
       setPhase((p) => (p + 1) % PHASES.length);
     }, 1200);
 
     const progressInterval = setInterval(() => {
-      setProgress((p) => {
-        if (p >= 100) return 100;
-        return p + Math.random() * 8 + 2;
-      });
+      setProgress((p) => Math.min(p + Math.random() * 6 + 1, 92));
     }, 200);
 
     const lockTimer = setTimeout(() => setLocked(true), 3000);
-    const doneTimer = setTimeout(() => {
-      const result = generateMockAnalysis();
-      saveAnalysisResult(result);
-      router.push("/result");
-    }, 6000);
+
+    const runAnalysis = async () => {
+      try {
+        setStatusText("フレーム抽出中...");
+        setPhase(3);
+
+        const extracted = await extractEyeContactFrames(videoUrl);
+        setIsPortrait(extracted.meta.isPortrait);
+        setProgress(100);
+
+        const result = generateMockAnalysis({
+          frames: extracted.frames,
+          highlightFrameIndex: extracted.highlightIndex,
+          heroFrameDataUrl: extracted.heroFrameDataUrl,
+          momentSec: extracted.momentSec,
+          timestamp: formatTimestamp(extracted.momentSec),
+          isPortrait: extracted.meta.isPortrait,
+          videoWidth: extracted.meta.width,
+          videoHeight: extracted.meta.height,
+        });
+
+        saveAnalysisResult(result);
+        router.push("/result");
+      } catch {
+        setStatusText("フレーム抽出をスキップ...");
+        const result = generateMockAnalysis();
+        saveAnalysisResult(result);
+        router.push("/result");
+      }
+    };
+
+    const doneTimer = setTimeout(runAnalysis, 4500);
 
     return () => {
       clearInterval(phaseInterval);
@@ -64,7 +96,9 @@ export default function AnalyzingPage() {
       clearTimeout(lockTimer);
       clearTimeout(doneTimer);
     };
-  }, [router]);
+  }, [videoUrl, router]);
+
+  const containerClass = getVideoContainerClass(isPortrait, "analyzing");
 
   return (
     <div className="relative min-h-screen overflow-hidden">
@@ -91,13 +125,13 @@ export default function AnalyzingPage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -5 }}
             >
-              {PHASES[phase]}
+              {statusText || PHASES[phase]}
             </motion.p>
           </AnimatePresence>
         </motion.div>
 
         <motion.div
-          className="relative w-full max-w-md aspect-[4/3] mb-8"
+          className={`relative w-full mb-8 ${containerClass}`}
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2 }}
@@ -106,11 +140,15 @@ export default function AnalyzingPage() {
             {videoUrl ? (
               <video
                 src={videoUrl}
-                className="w-full h-full object-cover opacity-60"
+                className={`w-full h-full ${isPortrait ? "object-contain" : "object-cover"} opacity-60`}
                 autoPlay
                 muted
                 loop
                 playsInline
+                onLoadedMetadata={(e) => {
+                  const v = e.currentTarget;
+                  setIsPortrait(v.videoHeight > v.videoWidth);
+                }}
               />
             ) : (
               <div className="w-full h-full bg-gradient-to-br from-purple-900/30 to-indigo-900/20" />
